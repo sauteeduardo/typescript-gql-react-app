@@ -71,7 +71,7 @@ export default function AddressSearch() {
           />
         </p>
         <button onClick={() => country && postcode && address()}>
-          Add
+          Search
         </button>
       {loading ? (
         <p>Loading ...</p>

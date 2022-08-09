@@ -1,5 +1,10 @@
 import React from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { ApolloClient, InMemoryCache, useQuery, useMutation, gql } from '@apollo/client';
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql',
+  cache: new InMemoryCache(),
+});
 
 interface Address {
     postcode: string;
@@ -37,11 +42,35 @@ const GET_ADDRESSES = gql`
   }
 `;
 
+const FLUSH_ADDRESS = gql`
+  mutation {
+    clearSearch
+  }
+`;
+
+interface clearReturn {
+  clearSearch: string;
+}
+
+
 export default function AddressList() {
   const { loading, data } = useQuery<SearchAddress>(
     GET_ADDRESSES,
     { }
   );
+
+  const refetchAddress = async () => {
+    await client.refetchQueries({
+      include: [GET_ADDRESSES],
+    });
+  }
+
+  const [clearSearch, {loadingData, error, dataRet }] = useMutation<
+    { clearSearch: clearReturn },
+    {  }
+  >(FLUSH_ADDRESS, {
+    variables: { } 
+  });
   console.log(data);
   return (
     <div>
@@ -80,6 +109,9 @@ export default function AddressList() {
           </tbody>
         </table>
       )}
+      <button onClick={() => clearSearch() && refetchAddress()}>
+          Search
+      </button>
     </div>
   );
 }
