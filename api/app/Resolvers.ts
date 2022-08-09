@@ -8,8 +8,22 @@ const client = new InMemoryDatabase();
 
 const Resolvers = {
     Query: {
+        searchAddress: async (_: any) => {
+            const Addresses = client.get('Address');
+
+            return Addresses ? Addresses.slice(-5) : [];
+        },
+    },
+    Mutation : {
+
+        clearSearch : async (_:any) => {
+            client.flush();
+            return "cleared";
+        },
         address: async (_: any, addressParams: any) => {
-            let { country, postcode } = addressParams;
+            let { country, postcode } = addressParams.addressParam;
+            console.log(addressParams);
+            
             if(country == ""){
                 country = "us";
             }
@@ -54,18 +68,6 @@ const Resolvers = {
                 }
             }
         },
-        searchAddress: async (_: any) => {
-            const Addresses = client.get('Address');
-
-            return Addresses ? Addresses.slice(-5) : [];
-        },
-    },
-    Mutation : {
-
-        clearSearch : async (_:any) => {
-            client.flush();
-            return "cleared";
-        }
     }
 };
 export default Resolvers;

@@ -1,11 +1,16 @@
 import { gql } from "apollo-server-express"; //will create a schema
 const Schema = gql`
   type Query {
-    address(country: String, postcode: String): Address
     searchAddress : [Address]
   }
   type Mutation {
+    address(addressParam: AddressInput): Address
     clearSearch : String
+  }
+
+  input AddressInput {
+    country: String
+    postcode: String
   }
      
   type Address {
