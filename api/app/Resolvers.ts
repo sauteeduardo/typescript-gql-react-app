@@ -17,12 +17,15 @@ const Resolvers = {
     Mutation : {
 
         clearSearch : async (_:any) => {
-            client.flush();
-            return "cleared";
+            try {
+                client.flush();
+                return "cleared";
+            } catch (error) {
+                return error;
+            }
         },
         address: async (_: any, addressParams: any) => {
             let { country, postcode } = addressParams.addressParam;
-            console.log(addressParams);
             
             if(country == ""){
                 country = "us";

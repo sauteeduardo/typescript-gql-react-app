@@ -43,7 +43,7 @@ interface AddressInput {
 export default function AddressSearch() {
   const [country, setCountry] = useState('');
   const [postcode, setPostCode] = useState('');
-
+  const [refetch, setRefetch] = useState(false);
   const [address, {loading, error, data }] = useMutation<
     { address: AddressInfo },
     { addressParam: AddressInput }
@@ -70,7 +70,7 @@ export default function AddressSearch() {
             onChange={e => setPostCode(e.target.value)}
           />
         </p>
-        <button onClick={() => country && postcode && address()}>
+        <button onClick={() => { country && postcode  && address(); setRefetch(true)}}>
           Search
         </button>
       {loading ? (
@@ -103,7 +103,7 @@ export default function AddressSearch() {
           </tbody>
         </table>
       )}
-      <AddressList />
+      <AddressList refetch={ refetch } />
     </div>
   );
 }

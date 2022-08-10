@@ -1,10 +1,6 @@
-import React from 'react';
-import { ApolloClient, InMemoryCache, useQuery, useMutation, gql } from '@apollo/client';
+import React, { useEffect, useState } from 'react';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
-const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphql',
-  cache: new InMemoryCache(),
-});
 
 interface Address {
     postcode: string;
@@ -22,7 +18,7 @@ interface Place {
 }
 
 interface SearchAddress {
-    searchAddress: Address[];
+  searchAddress: Address[] | [];
 }
 
 const GET_ADDRESSES = gql`
@@ -48,30 +44,29 @@ const FLUSH_ADDRESS = gql`
   }
 `;
 
-interface clearReturn {
+interface ClearReturn {
   clearSearch: string;
 }
 
 
-export default function AddressList() {
-  const { loading, data } = useQuery<SearchAddress>(
+
+const AddressList = (_:any) => {
+  const [items, setItems] = useState<SearchAddress>();
+  const { loading, data, refetch} = useQuery<SearchAddress>(
     GET_ADDRESSES,
     { }
   );
+  useEffect(() => {refetch();}, [_])
+  
+  
+  useEffect(() => {setItems(data);}, [data])
 
-  const refetchAddress = async () => {
-    await client.refetchQueries({
-      include: [GET_ADDRESSES],
-    });
-  }
-
-  const [clearSearch, {loadingData, error, dataRet }] = useMutation<
-    { clearSearch: clearReturn },
+  const [clearSearch, { error }] = useMutation<
+    { clearSearch: ClearReturn },
     {  }
   >(FLUSH_ADDRESS, {
     variables: { } 
   });
-  console.log(data);
   return (
     <div>
       <h3>Last 5 searches</h3>
@@ -92,7 +87,7 @@ export default function AddressList() {
             </tr>
           </thead>
           <tbody>
-          {data && data.searchAddress && data.searchAddress.map(address => (
+          {items && items.searchAddress && items.searchAddress.map(address => (
 
             <tr>
               <td> {address.postcode} </td>
@@ -109,9 +104,12 @@ export default function AddressList() {
           </tbody>
         </table>
       )}
-      <button onClick={() => clearSearch() && refetchAddress()}>
-          Search
+      <button onClick={() => { clearSearch(); setItems(undefined); }}>
+          Flush search
       </button>
+      {error ? <p>Oh no! {error.message}</p> : null}
     </div>
   );
 }
+
+export default AddressList;
