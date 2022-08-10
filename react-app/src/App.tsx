@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLazyQuery, gql } from '@apollo/client';
 import  AddressList  from './components/addresses';
 import './App.css';
+import Countries from "./countries";
 
 const GET_ADDRESS = gql`
   query address($addressParam: AddressInput){
@@ -21,7 +22,7 @@ const GET_ADDRESS = gql`
 `;
 
 export default function AddressSearch() {
-  const [country, setCountry] = useState('');
+  const [country, setCountry] = useState('us');
   const [postcode, setPostCode] = useState('');
   const [refetch, setRefetch] = useState(false);
   const [
@@ -31,6 +32,11 @@ export default function AddressSearch() {
     variables: { addressParam: { country , postcode} },
     fetchPolicy: 'network-only',
   });
+
+  const handleChange = (e: any) => {
+    const countryCode = Countries[e.target.selectedIndex].country_code.toLocaleLowerCase();
+    setCountry(countryCode);
+  };
   
   return (
     
@@ -39,10 +45,13 @@ export default function AddressSearch() {
       {error ? <p>Oh no! {error.message}</p> : null}
         <p>
           <label>Country</label>
-          <input
-            name="country"
-            onChange={e => setCountry(e.target.value)}
-          />
+          <select defaultValue={"us"} onChange={handleChange}>
+          {Countries.map((value) => (
+            <option value={value.country_code.toLocaleLowerCase()} key={value.country_name}>
+              {value.country_name}
+            </option>
+          ))}
+        </select>
         </p>
         <p>
           <label>postal code</label>
