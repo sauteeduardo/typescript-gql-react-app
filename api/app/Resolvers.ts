@@ -13,20 +13,9 @@ const Resolvers = {
 
             return Addresses ? Addresses.slice(-5) : [];
         },
-    },
-    Mutation : {
-
-        clearSearch : async (_:any) => {
-            try {
-                client.flush();
-                return "cleared";
-            } catch (error) {
-                return error;
-            }
-        },
         address: async (_: any, addressParams: any) => {
             let { country, postcode } = addressParams.addressParam;
-            
+            console.log('addressParams', country);
             if(country == ""){
                 country = "us";
             }
@@ -55,8 +44,12 @@ const Resolvers = {
                 if(Addresses){
                     newAddress = Addresses;
                 }
-                newAddress.push(data);
-                
+                let newAddr = <any>{};
+                newAddr.postcode = data["postcode"];
+                newAddr.placename = data.places[0]["placename"];
+                newAddr.state = data.places[0].state;
+                newAddress.push(newAddr);
+                console.log('data', newAddress);
                 client.set('Address', newAddress);
                 
                 
@@ -69,6 +62,17 @@ const Resolvers = {
                   console.log('unexpected error: ', error);
                   return 'An unexpected error occurred';
                 }
+            }
+        },
+    },
+    Mutation : {
+
+        clearSearch : async (_:any) => {
+            try {
+                client.flush();
+                return "cleared";
+            } catch (error) {
+                return error;
             }
         },
     }

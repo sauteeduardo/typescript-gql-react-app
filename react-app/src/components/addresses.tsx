@@ -4,19 +4,10 @@ import { useQuery, useMutation, gql } from '@apollo/client';
 
 interface Address {
     postcode: string;
-    country: string;
-    countryabbreviation: string;
-    places: Place[];
+    state: string;
+    placename: string;
 } 
   
-interface Place {
-    placename : string;
-    longitude : string;
-    state : string;
-    stateabbreviation : string;
-    latitude : string;
-}
-
 interface SearchAddress {
   searchAddress: Address[] | [];
 }
@@ -24,16 +15,9 @@ interface SearchAddress {
 const GET_ADDRESSES = gql`
   query {
     searchAddress {
-        postcode
-        country
-        countryabbreviation
-        places {
-            placename
-            longitude
-            state
-            stateabbreviation
-            latitude
-        }
+      postcode
+      placename
+      state
     }
   }
 `;
@@ -56,7 +40,7 @@ const AddressList = (_:any) => {
     GET_ADDRESSES,
     { }
   );
-  useEffect(() => {refetch();}, [_])
+  useEffect(() => {_.refetch && refetch();}, [_])
   
   
   useEffect(() => {setItems(data);}, [data])
@@ -77,13 +61,8 @@ const AddressList = (_:any) => {
           <thead>
             <tr>
               <th>Post code</th>
-              <th>Country</th>
-              <th>Country abbreviation</th>
               <th>City</th>
-              <th>Longitude</th>
               <th>State</th>
-              <th>State Abbreviation</th>
-              <th>Latitude</th>
             </tr>
           </thead>
           <tbody>
@@ -91,13 +70,8 @@ const AddressList = (_:any) => {
 
             <tr>
               <td> {address.postcode} </td>
-              <td> {address.country}</td>
-              <td> {address.countryabbreviation}</td>
-              <td>{address.places[0].placename}</td>
-              <td>{address.places[0].longitude}</td>
-              <td>{address.places[0].state}</td>
-              <td>{address.places[0].stateabbreviation}</td>
-              <td>{address.places[0].latitude}</td>
+              <td>{address.placename}</td>
+              <td>{address.state}</td>
             </tr>
             ))}
 

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useMutation, gql } from '@apollo/client';
+import { useLazyQuery, gql } from '@apollo/client';
 import  AddressList  from './components/addresses';
+import './App.css';
+
 const GET_ADDRESS = gql`
-  mutation address($addressParam: AddressInput){
+  query address($addressParam: AddressInput){
     address(addressParam: $addressParam){
       postcode
       country
@@ -18,37 +20,16 @@ const GET_ADDRESS = gql`
   }
 `;
 
-
-interface AddressInfo {
-  postcode: string;
-  country: string;
-  countryabbreviation: string;
-  places: Place[];
-}
-
-interface Place {
-  placename : string;
-  longitude : string;
-  state : string;
-  stateabbreviation : string;
-  latitude : string;
-}
-
-
-interface AddressInput {
-  country: string;
-  postcode: string;
-}
-
 export default function AddressSearch() {
   const [country, setCountry] = useState('');
   const [postcode, setPostCode] = useState('');
   const [refetch, setRefetch] = useState(false);
-  const [address, {loading, error, data }] = useMutation<
-    { address: AddressInfo },
-    { addressParam: AddressInput }
-  >(GET_ADDRESS, {
-    variables: { addressParam: { country , postcode} } 
+  const [
+    address, 
+    { loading, error, data }
+  ] = useLazyQuery(GET_ADDRESS, {
+    variables: { addressParam: { country , postcode} },
+    fetchPolicy: 'network-only',
   });
   
   return (
@@ -70,7 +51,7 @@ export default function AddressSearch() {
             onChange={e => setPostCode(e.target.value)}
           />
         </p>
-        <button onClick={() => { country && postcode  && address(); setRefetch(true)}}>
+        <button onClick={() => { country && postcode  && address().then(()=>setRefetch(true))}}>
           Search
         </button>
       {loading ? (
