@@ -1,5 +1,4 @@
-# within3
-Project for within3 challenge
+# typescript-gql-react-app
 
 there are the api and the react app
 
